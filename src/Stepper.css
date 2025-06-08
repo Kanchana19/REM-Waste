@@ -1,0 +1,75 @@
+/* ───────── container */
+.stepper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  user-select: none;
+  margin-bottom: 32px;      /* pushes main content down a bit */
+}
+
+/* ───────── each step */
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* circle */
+.step-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: all 0.35s ease;
+}
+
+/* text */
+.step-label {
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-align: center;
+  transition: color 0.35s;
+}
+
+/* divider */
+.step-divider {
+  width: 42px;
+  height: 2px;
+  align-self: center;
+  transition: background 0.35s;
+}
+
+/* ───────── states */
+.step-circle.completed  { background: #ffa600; color: #fff; }
+.step-circle.active     {
+  border: 3px solid #ffa600;
+  color: #ffa600;
+  animation: pulse 1.2s infinite ease-in-out alternate;
+}
+.step-circle.upcoming   { border: 2px solid #555; color: #555; }
+
+.step-label.completed,
+.step-label.active      { color: #ffa600; }
+.step-label.upcoming    { color: #777; }
+
+.step-divider.completed { background: #ffa600; }
+.step-divider.active    { background: linear-gradient(90deg,#ffa600 60%,#777 60%); }
+.step-divider.upcoming  { background: #555; }
+
+/* active pulse animation */
+@keyframes pulse {
+  from { transform: scale(1);   }
+  to   { transform: scale(1.1); }
+}
+
+/* responsive tweak: shrink gaps on tiny screens */
+@media (max-width: 480px) {
+  .stepper { gap: 8px; }
+  .step-divider { width: 28px; }
+}

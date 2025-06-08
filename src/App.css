@@ -1,38 +1,118 @@
-.App {
-  text-align: center;
+/* ───────── stepper ───────── */
+.stepper-bar{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;padding:18px 0 38px}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:6px}
+.circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600}
+.step-item.done   .circle{background:#ffa600;color:#fff}
+.step-item.active .circle{border:3px solid #ffa600;color:#ffa600}
+.step-item.todo   .circle{border:2px solid #b0b0b0;color:#b0b0b0}
+.step-text{font-size:.8rem;font-weight:600;color:#6a6a6a}
+.step-item.done .step-text,
+.step-item.active .step-text{color:#ffa600}
+.step-line{width:48px;height:2px;background:#b0b0b0}
+.step-line.done,
+.step-line.active{background:#ffa600}
+@media (max-width:640px){.step-text{display:none}.step-line{width:28px}}
+
+/* ───────── page layout ───────── */
+body{margin:0;font-family:"Inter",Arial,sans-serif;background:#fde6d9;color:#202124}
+
+.screen{
+  display:flex;flex-direction:column;gap:24px;
+  height:100%;overflow:hidden;
+  padding:0px clamp(8px,4vw,48px);
+  box-sizing:border-box
+}
+@media(min-width:768px){
+  .screen{flex-direction:row;column-gap:24px}
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* ───────── spec panel ───────── */
+.spec-panel{
+  background:#fff8f3;border-radius:16px;padding:20px 28px;
+  box-shadow:0 4px 16px rgba(0,0,0,.06);flex:0 0 320px;
+  display:flex;flex-direction:column;overflow:hidden
 }
+@media(max-width:767px){.spec-panel{width:100%}}
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.panel-title{margin:0 0 8px;font-size:1.8rem}
+.panel-sub{margin:0;color:#5f6368}
+
+/* scrollable radio list */
+.radio-list{margin:24px 0 32px;display:flex;flex-direction:column;gap:18px;
+  max-height:220px;overflow-y:auto;padding-right:6px}
+.radio-list::-webkit-scrollbar{width:6px}
+.radio-list::-webkit-scrollbar-thumb{background:#c9d1d9;border-radius:3px}
+
+/* height tweaks for short screens */
+@media(max-height:700px){.radio-list{max-height:160px}}
+@media(max-height:550px){.radio-list{max-height:120px}}
+
+.radio-item{display:flex;align-items:center;gap:12px;font-weight:600;font-size:1.05rem}
+.radio-item input{appearance:none;width:22px;height:22px;border:2px solid #035f66;border-radius:50%;position:relative;cursor:pointer}
+.radio-item input:checked::after{content:"";position:absolute;inset:4px;border-radius:50%;background:#035f66}
+
+.divider{border:none;border-top:1px solid #e0d5ce;margin:24px 0}
+.meta-label{margin:0;color:#5f6368}
+.meta-value{margin:0;font-weight:600}
+.price{margin:0 0 24px;font-size:1.8rem;font-weight:700}
+@media(max-width:480px){.panel-title{font-size:1.5rem}.price{font-size:1.5rem}}
+
+/* CTA button */
+.cta-btn{
+  width:100%;padding:14px 0;font-size:1.05rem;font-weight:600;color:#fff;
+  background:#035f66;border:none;border-radius:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s,box-shadow .2s
+}
+.cta-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.15)}
+.cta-btn:disabled{background:#9ec4c7;cursor:not-allowed;transform:none;box-shadow:none}
+.cta-btn.confirmed{background:#16db65}
+
+/* ───────── preview ───────── */
+.preview-wrap{flex:1;display:flex;align-items:center;justify-content:center}
+.skip-img{width:100%;max-width:480px;height:auto;max-height:60vh;object-fit:contain}
+.preview-hint{color:#5f6368;margin:0}
+
+/* ───────── modal ───────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;justify-content:center;align-items:center;z-index:1000;animation:fade .3s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal-content{position:relative;width:360px;max-width:90%;padding:32px 28px;border-radius:12px;background:#fff;text-align:center;box-shadow:0 12px 32px rgba(0,0,0,.3);animation:pop .35s cubic-bezier(.22,.61,.36,1)}
+@keyframes pop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.modal-close{position:absolute;top:10px;right:14px;background:transparent;border:none;font-size:1.8rem;color:#666;cursor:pointer}
+.modal-price{font-size:1.6rem;font-weight:700;margin:16px 0 24px;color:#16db65}
+.modal-cta{width:100%;padding:14px 0;font-size:1.05rem;font-weight:600;color:#fff;background:#035f66;border:none;border-radius:8px;cursor:pointer}
+.modal-cta:hover{background:#02464b}
+
+/* slide-up drawer at ≤480px */
+@media(max-width:480px){
+  .modal-content{width:100%;border-radius:16px 16px 0 0;margin-top:auto;animation:slideUp .35s ease-out}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+}
+/* ===== phones & small tablets (0-767 px) ========================= */
+@media (max-width: 767px) {
+  /* make the layout a normal vertical flow */
+  .screen {
+    display: block;            /* column already but remove height=100vh */
+    height: auto;
+    overflow: visible;
+    padding: 24px 16px;        /* comfortable side-padding */
   }
-}
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+  /* panel should stretch full width */
+  .spec-panel {
+    width: 75%;
+    flex: none;                /* overrides flex:0 0 320px */
+    margin-bottom: 32px;       /* gap before the preview */
+    justify-self:center
   }
-  to {
-    transform: rotate(360deg);
+
+  .skip-img {
+    max-width: 75%;
+    max-height: 50vh;          
+  }
+
+  .radio-list {
+    max-height: 210px;
+    overflow-y: auto;
   }
 }
