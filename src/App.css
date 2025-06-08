@@ -106,13 +106,69 @@ body{margin:0;font-family:"Inter",Arial,sans-serif;background:#fde6d9;color:#202
     justify-self:center
   }
 
-  .skip-img {
+  /* .skip-img {
     max-width: 75%;
     max-height: 50vh;          
-  }
+  } */
 
   .radio-list {
     max-height: 210px;
     overflow-y: auto;
   }
+
+  /* 1️⃣  Make preview area a flexbox and centre its child */
+.preview-wrap {
+  display: flex;            /* was just “flex:1 …” */
+  align-items: center;
+  justify-content: center;  /* new – centres inline-block .img-wrap */
 }
+
+/* 2️⃣  Let the image wrapper fill available width (but never overflow) */
+.img-wrap {
+  position: relative;
+  width: 100%;            /* NEW – take full width of flex item   */
+  max-width: 480px;       /* keep your desktop cap                */
+  display: block;         /* block is safer than inline-block now */
+}
+
+/* 3️⃣  Make sure the picture itself scales with its parent */
+.skip-img {
+  width: 100%;            /* NEW – fills .img-wrap exactly        */
+  height: auto;
+  max-height: 60vh;       /* same as before                       */
+  object-fit: contain;
+}
+
+}
+
+
+/* ----- preview image wrapper & overlays ------------------------- */
+.img-wrap{
+  position:relative;
+  width:100%;
+  max-width:480px;
+}
+.yard-pill{
+  position:absolute;
+  top:12px; right:12px;
+  padding:4px 14px;
+  border-radius:999px;
+  font-size:.85rem; font-weight:700;
+  color:#fff;
+  background:linear-gradient(135deg, #d3d7de 0%, #0a84ff 100%);
+  box-shadow:0 2px 6px rgba(0,0,0,.25);
+  pointer-events:none;
+}
+.road-badge{
+  position:absolute;
+  bottom:16px; left:16px;
+  display:flex; align-items:center; gap:6px;
+  padding:4px 10px 4px 8px;
+  border-radius:6px;
+  font-size:.78rem; font-weight:600;
+  background:#000; color:#ffd24c;
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  pointer-events:none;
+}
+.road-icon{ font-size:.9rem; color:#ffd24c; }
+

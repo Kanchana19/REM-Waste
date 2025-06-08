@@ -1,5 +1,5 @@
-// Stepper.js – horizontal progress tracker
 import React from "react";
+import { FaCheck } from "react-icons/fa";
 import {
   FaMapMarkerAlt,
   FaTrashAlt,
@@ -7,11 +7,10 @@ import {
   FaShieldAlt,
   FaRegCalendarAlt,
   FaRegCreditCard,
-  FaCheck,
 } from "react-icons/fa";
-import "./App.css";                     // uses the shared stylesheet
+import "./App.css";                 // uses global stepper rules
 
-const steps = [
+const STEPS = [
   { label: "Postcode",     icon: FaMapMarkerAlt },
   { label: "Waste Type",   icon: FaTrashAlt },
   { label: "Select Skip",  icon: FaBoxOpen },
@@ -20,22 +19,21 @@ const steps = [
   { label: "Payment",      icon: FaRegCreditCard },
 ];
 
-/* currentStep → 0-based index of the active step */
-export default function Stepper({ currentStep = 0 }) {
+export default function Stepper({ current = 0 }) {
   return (
     <nav className="stepper-bar">
-      {steps.map(({ label, icon: Icon }, idx) => {
+      {STEPS.map(({ label, icon: Icon }, i) => {
         const state =
-          idx < currentStep ? "done" : idx === currentStep ? "active" : "todo";
+          i < current ? "done" : i === current ? "active" : "todo";
         return (
           <React.Fragment key={label}>
             <div className={`step-item ${state}`}>
               <span className="circle">
-                {idx < currentStep ? <FaCheck size={13} /> : <Icon size={13} />}
+                {i < current ? <FaCheck size={13} /> : <Icon size={13} />}
               </span>
               <span className="step-text">{label}</span>
             </div>
-            {idx < steps.length - 1 && (
+            {i < STEPS.length - 1 && (
               <div className={`step-line ${state}`} />
             )}
           </React.Fragment>

@@ -1,169 +1,108 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
+import Stepper from "./Stepper";
 import {
-  FaMapMarkerAlt,
-  FaTrashAlt,
-  FaBoxOpen,
-  FaShieldAlt,
-  FaRegCalendarAlt,
-  FaRegCreditCard,
   FaCheck,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 
-/* ─── stepper data ───────────────── */
-const STEPS = [
-  { label: "Postcode",     icon: FaMapMarkerAlt },
-  { label: "Waste Type",   icon: FaTrashAlt },
-  { label: "Select Skip",  icon: FaBoxOpen },
-  { label: "Permit Check", icon: FaShieldAlt },
-  { label: "Choose Date",  icon: FaRegCalendarAlt },
-  { label: "Payment",      icon: FaRegCreditCard },
-];
-const CURRENT_STEP = 2; // 0-based index (“Select Skip”)
-
-/* ─── stepper component ──────────── */
-function Stepper() {
-  return (
-    <nav className="stepper-bar">
-      {STEPS.map(({ label, icon: Icon }, i) => {
-        const state = i < CURRENT_STEP ? "done" : i === CURRENT_STEP ? "active" : "todo";
-        return (
-          <React.Fragment key={label}>
-            <div className={`step-item ${state}`}>
-              <span className="circle">
-                {i < CURRENT_STEP ? <FaCheck size={13} /> : <Icon size={13} />}
-              </span>
-              <span className="step-text">{label}</span>
-            </div>
-            {i < STEPS.length - 1 && <div className={`step-line ${state}`} />}
-          </React.Fragment>
-        );
-      })}
-    </nav>
-  );
-}
+const API = (pc, area) =>
+  `https://app.wewantwaste.co.uk/api/skips/by-location?postcode=${pc}&area=${area}`;
 
 export default function App() {
-  /* pretend these come from previous steps */
-  const postcode = "NR32";
-  const area     = "Lowestoft";
-
-  /* data + ui state */
-  const [skips, setSkips]         = useState([]);
-  const [selected, setSelected]   = useState(null);
-  const [confirmed, setConfirmed] = useState(false); // turns CTA green
-  const [modalOpen, setModalOpen] = useState(false); // modal visibility
+  const [skips, setSkips]       = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [locked, setLocked]     = useState(false);
+  const [showModal, setShow]    = useState(false);
 
   /* fetch once */
   useEffect(() => {
-    fetch(
-      `https://app.wewantwaste.co.uk/api/skips/by-location?postcode=${postcode}&area=${area}`
-    )
-      .then(r => r.json())
-      .then(d => setSkips(d.skips ?? d));
-  }, [postcode, area]);
+    fetch(API("NR32", "Lowestoft"))
+      .then((r) => r.json())
+      .then((d) => setSkips(d.skips ?? d));
+  }, []);
 
   /* handlers */
-  const handleRadio = (skip) => {
-    setSelected(skip);
-    setConfirmed(false);      // reset CTA phase when user changes size
-  };
+  const choose = (s) => { setSelected(s); setLocked(false); };
+  const open   = () => selected && setShow(true);
+  const confirm= () => { setLocked(true); setShow(false); };
 
-  const handlePrimary = () => {
-    if (!selected) return;
-    setModalOpen(true);       // show confirmation modal
-  };
-
-  const confirmSelection = () => {
-    setConfirmed(true);       // lock selection (green button)
-    setModalOpen(false);
-    console.log("Chosen skip:", selected);
-    // navigate() or props.onSelect?.(selected) etc.
-  };
-
-  /* ─── render ───────────────────── */
   return (
     <>
-      <Stepper />
+      <Stepper current={2} />
 
-      <div className="screen">
-        {/* ========= SPEC PANEL ========= */}
+      <main className="screen">
+        {/* panel */}
         <section className="spec-panel">
           <h1 className="panel-title">Choose Your Skip</h1>
-          <p className="panel-sub">Select the best skip for your needs.</p>
+          <p  className="panel-sub">Select the best skip for your needs.</p>
 
           <div className="radio-list">
-            {skips.map(skip => (
-              <label key={skip.id} className="radio-item">
+            {skips.map((s) => (
+              <label key={s.id} className="radio-item">
                 <input
                   type="radio"
                   name="skip"
-                  checked={selected?.id === skip.id}
-                  onChange={() => handleRadio(skip)}
+                  checked={selected?.id === s.id}
+                  onChange={() => choose(s)}
                 />
-                {skip.size} Yard
+                {s.size} Yard
               </label>
             ))}
           </div>
 
-          <hr className="divider" />
-
           {selected && (
             <>
-              <p className="meta-label">Hire period</p>
-              <p className="meta-value">{selected.hire_period_days} day</p>
+              <hr className="divider" />
+              <span className="meta-label">Hire period</span>
+              <span className="meta-value">{selected.hire_period_days} day</span>
 
               <hr className="divider" />
-
-              <p className="meta-label">Price</p>
-              <p className="price">£{selected.price_before_vat}</p>
+              <span className="meta-label">Price</span>
+              <span className="price">£{selected.price_before_vat}</span>
             </>
           )}
 
-          {/* primary CTA */}
           <button
-            className={`cta-btn ${confirmed ? "confirmed" : ""}`}
+            className={`cta-btn ${locked ? "confirmed" : ""}`}
             disabled={!selected}
-            onClick={handlePrimary}
+            onClick={open}
           >
-            {confirmed ? (
-              <>
-                <FaCheck style={{ marginRight: 8 }} /> Selected
-              </>
-            ) : selected ? (
-              "Select skip"
-            ) : (
-              "Choose a skip"
-            )}
+            {locked && <FaCheck style={{ marginRight: 8 }} />}
+            {locked ? "Selected" : selected ? "Select skip" : "Choose a skip"}
           </button>
         </section>
 
-        {/* ========= PREVIEW ========= */}
+        {/* preview */}
         <div className="preview-wrap">
           {selected ? (
-            <img
-              className="skip-img"
-              src="/eye.jpg" /* replace with skip.image_url */
-              alt={`${selected.size} yard skip`}
-            />
+            <div className="img-wrap">
+              <img
+                className="skip-img"
+                src="/eye.jpg"              /* replace with selected.image_url */
+                alt={`${selected.size} yard skip`}
+              />
+
+              <span className="yard-pill">{selected.size} Yards</span>
+
+              {!selected.allowed_on_road && (
+                <span className="road-badge">
+                  <FaExclamationTriangle className="road-icon" />
+                  Not Allowed On The Road
+                </span>
+              )}
+            </div>
           ) : (
             <p className="preview-hint">Pick a size to preview</p>
           )}
         </div>
-      </div>
+      </main>
 
-      {/* ========= MODAL ========= */}
-      {modalOpen && selected && (
-        <div className="modal-overlay" onClick={() => setModalOpen(false)}>
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}   /* stop overlay close */
-          >
-            <button
-              className="modal-close"
-              onClick={() => setModalOpen(false)}
-              aria-label="Close"
-            >
+      {/* modal */}
+      {showModal && selected && (
+        <div className="modal-overlay" onClick={() => setShow(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShow(false)}>
               &times;
             </button>
 
@@ -171,7 +110,7 @@ export default function App() {
             <p>{selected.hire_period_days} day hire period</p>
             <p className="modal-price">£{selected.price_before_vat}</p>
 
-            <button className="modal-cta" onClick={confirmSelection}>
+            <button className="modal-cta" onClick={confirm}>
               Continue
             </button>
           </div>
